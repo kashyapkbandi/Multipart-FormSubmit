@@ -1,0 +1,48 @@
+public class FileUploadScript {
+    
+    
+    public static void uploadDocument(){
+        
+        
+        String boundary = 'boundary_string';
+        StaticResource  dataFile = [select id ,body from StaticResource  where name='sample'];
+        //StaticResource  dataFile = [select id ,body from StaticResource  where name='sample_text'];
+        
+        String header ='\r\n--'+boundary
+            + '\nContent-Disposition: form-data; name="entity_document";'
+            +'\nContent-Type: application/json\n\n';
+        
+        string data = '{\n"Description":"Marketing brochure for Q1 201ww1",\n"Keywords":"marketing,sales,update",\n"FolderId":"00lB0000001ARei",\n"Name":"Marketing Brochure Q22",\n"Type" : "pdf"\n}';
+        String footer = '\n--'+boundary;
+        
+        
+        
+        String header2 ='\nContent-Disposition: form-data; name="Body"; filename="2011Q1MktgBrochure.pdf";'
+            +'\nContent-Type: application/pdf\n\n';
+        
+        
+        String footer2 = '\n--'+boundary+'--';
+        
+        
+       // string body = header+data+footer+header2+EncodingUtil.base64Encode(dataFile.body)+'\n'+footer2;            
+        
+        
+       system.debug(header+data+footer+header2+EncodingUtil.base64Encode(dataFile.body)+'\n'+footer2);
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndPoint('https://masterbox-dev-ed.my.salesforce.com/services/data/v44.0/sobjects/Document/');
+        
+        String authCode = 'Bearer '+'00DB0000000K2ay!AQoAQGlALzn1kGzRx.3YUs7XQ_OvJwAz7CqrhbCzSy7Ft0YPQ.JWtGOqRjwtektNqc41FgFgUzJ8DAKk5abSxK2Z0kUjGq8N';
+        req.setHeader('Content-Type','multipart/form-data;boundary=boundary_string');
+        req.setHeader('Authorization', authCode);
+        req.setBody(header+data+footer+header2+EncodingUtil.base64Encode(dataFile.body)+'\n'+footer2); 
+        req.setMethod('POST');
+        system.debug('req : '+req);
+        Http http = new Http();
+        HttpResponse res =  http.send(req);
+        System.debug('Status Code : '+res.getStatusCode());
+        System.debug('response body : ' + res.getBody());
+        // Map<String, Object> resultsMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+        //System.debug('response body : ' + resultsMap);
+    }
+}
